@@ -1,23 +1,53 @@
-import cv2
 import numpy as np
+import cv2
 import matplotlib.pyplot as plt
 
-# Read the original image
-img = cv2.imread('path_to_your_image.jpg')
+def display(img):
+    fig = plt.figure(figsize=(12,10))
+    ax = fig.add_subplot(111)
+    ax.imshow(img,cmap='gray')
+    ax.axis('off')
 
-# Convert to grayscale
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+def create_img():
+    blank_img = np.zeros((200,200))
+    font = cv2.FONT_HERSHEY_DUPLEX
+    cv2.putText(img=blank_img, 
+                text='H', 
+                org=(50,150), 
+                fontFace=font, 
+                fontScale=5, 
+                color=(255,255,255),
+                thickness=25,
+                lineType=cv2.LINE_AA)
+    return blank_img
 
-# Apply Gaussian blur to reduce noise
-blurred = cv2.GaussianBlur(gray, (3,3), 0)
+sobel_x = np.array([[-1, -2, -1],
+                    [ 0,  0,  0],
+                    [ 1,  2,  1]])
 
-# Convolve with Sobel kernels
-sobelx = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=5)
-sobely = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=5)
+sobel_y = np.array([[-1, 0, 1],
+                    [-2, 0, 2],
+                    [-1, 0, 1]])
 
-# Plot the results
-plt.subplot(2,2,1), plt.imshow(sobelx, cmap='gray')
-plt.title('Sobel X'), plt.xticks([]), plt.yticks([])
-plt.subplot(2,2,2), plt.imshow(sobely, cmap='gray')
-plt.title('Sobel Y'), plt.xticks([]), plt.yticks([])
-plt.show()
+
+i = create_img()
+display(i)
+
+
+edge_x = cv2.filter2D(src=i, ddepth=-1, kernel=sobel_x)
+display(edge_x)
+
+edge_x[edge_x != 0] = 255
+display(edge_x)
+
+edge_y = cv2.filter2D(src=i, ddepth=-1, kernel=sobel_y)
+display(edge_y)
+
+edge_y[edge_y != 0] = 255
+display(edge_y)
+
+add_edge = edge_x + edge_y
+display(add_edge)
+
+add_edge[add_edge != 0] = 255
+display(add_edge)
